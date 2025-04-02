@@ -16,7 +16,7 @@ if not (TWILIO_API_KEY_SID and TWILIO_API_KEY_SECRET and TWILIO_ACCOUNT_SID and 
     raise Exception("Please set all required Twilio credentials.")
 
 # Initialize the Twilio client using the API Key method.
-client = Client(TWILIO_API_KEY_SID, TWILIO_API_KEY_SECRET, TWILIO_ACCOUNT_SID)
+client = Client(api_key_sid, api_key_secret, account_sid)
 
 def send_sms(to_number, message):
     """
