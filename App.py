@@ -2,29 +2,22 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from twilio.rest import Client
-###load_dotenv()  
+
 app = Flask(__name__)
 load_dotenv()
-# Hardcoded credentials (for testing only; not recommended for production)
-TWILIO_API_KEY_SID = os.getenv("TWILIO_API_KEY_SID")
-TWILIO_API_KEY_SECRET = os.getenv("TWILIO_API_KEY_SECRET")
+
+# Retrieve environment variables
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 AUTH_TOKEN = os.getenv("AUTH_TOKEN")
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 
-if not (TWILIO_API_KEY_SID and TWILIO_API_KEY_SECRET and TWILIO_ACCOUNT_SID and TWILIO_PHONE_NUMBER):
-    raise Exception("Please set all required Twilio credentials.")
+if not (TWILIO_ACCOUNT_SID and AUTH_TOKEN and TWILIO_PHONE_NUMBER):
+    raise Exception("Please set TWILIO_ACCOUNT_SID, AUTH_TOKEN, and TWILIO_PHONE_NUMBER.")
 
-# Initialize the Twilio client using the API Key method.
-client = Client(api_key_sid, api_key_secret, account_sid)
+# Initialize the Twilio client
+client = Client(TWILIO_ACCOUNT_SID, AUTH_TOKEN)
 
 def send_sms(to_number, message):
-    """
-    Send an SMS using Twilio.
-    :param to_number: The recipient's phone number in E.164 format (e.g., "+19876543210").
-    :param message: The message body to send.
-    :return: The SID of the sent SMS.
-    """
     try:
         sms = client.messages.create(
             body=message,
@@ -43,14 +36,14 @@ def process_message():
 
     message_body = data.get('message')
     if not message_body:
-        return jsonify({'error': 'Missing "message" parameter.'}), 400
+        return jsonify({'error': 'Missing \"message\" parameter.'}), 400
 
     if message_body.strip().lower() == "hello":
         return jsonify({'message': 'Received hello. No notification triggered.'}), 200
     else:
         to_number = data.get('to')
         if not to_number:
-            return jsonify({'error': 'Missing "to" parameter for notification.'}), 400
+            return jsonify({'error': 'Missing \"to\" parameter for notification.'}), 400
 
         try:
             sms_message = f"Alert: {message_body}"
